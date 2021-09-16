@@ -43,4 +43,20 @@ def CreateNotesPage(request) :
         note = Note.objects.get(id=request.POST.get("note_id")) 
         Page = NotePages.objects.create(title = title,note=note)
         Page.save()
+        return HttpResponse(content=Page.id)
+
+@require_http_methods(["POST"])
+def UpdateNotesPage(request,id) :
+    if request.method == "POST" :
+        #title = request.POST.get("title")
+        content = request.POST.get("content","")
+        Page = get_object_or_404(NotePages,pk=id)
+        Page.content = content
+        Page.save()
         return HttpResponse(content="success")
+
+def DeleteNotesPage(request,id) :
+    Page = get_object_or_404(NotePages,pk=id)
+    id = Page.pk
+    Page.delete()
+    return HttpResponse(content=id)

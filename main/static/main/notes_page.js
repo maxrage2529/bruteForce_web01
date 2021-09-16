@@ -2,25 +2,43 @@ $(document).ready(function () {
   $(".treeview-animated").mdbTreeview();
   startTiny();
   $("#full-featured-non-premium").hide();
-  tinymce.activeEditor.hide()
+  tinymce.activeEditor.hide();
 });
 
 let useDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 let pagesDisplayId = "#pages";
-let treeViewClass = ".treeview-animated-element";
+let treeViewClass = "treeview-animated-element";
+let activeTreeViewClass = ".treeview-animated-element.opened";
+
 let contentDiv = ".viewContent";
 let textAreaId = "full-featured-non-premium";
 let editToggleId = "#viewEditToggle";
 let editMode = false;
+let saveBtnId = "saveBtn";
+
+$("#" + saveBtnId).click(() => {
+  let data = tinymce.get(textAreaId).getContent();
+  let csrf_token = $("input[name=csrfmiddlewaretoken]").val();
+  let id = $(activeTreeViewClass).attr("id");
+  $.post(
+    `../../notes/page/update/${id}`,
+    {
+      content: data,
+      csrfmiddlewaretoken: csrf_token,
+    },
+    (data, success) => {
+      console.log(success);
+    }
+  );
+});
 
 $(editToggleId).change(function () {
   editMode = !$(this).prop("checked");
-  if(editMode) {
-    changeToEditMode()
-  }
-  else {
-    changeToViewMode()
+  if (editMode) {
+    changeToEditMode();
+  } else {
+    changeToViewMode();
   }
 });
 
@@ -28,12 +46,18 @@ function changeToEditMode(data = null) {
   let content = data === null ? $(contentDiv).html() : data;
   tinymce.activeEditor.show();
   //$("#" + textAreaId).show();
+  if (content === "" || content === null) {
+    content = ""
+  }
   tinymce.get(textAreaId).setContent(content);
   $(contentDiv).hide();
 }
 
 function changeToViewMode(data = null) {
   let content = data === null ? tinymce.activeEditor.getContent() : data;
+  if (content === "" || content === null) {
+    content = ""
+  }
   $(contentDiv).html(content);
   $(contentDiv).show();
   tinymce.activeEditor.hide();
@@ -42,7 +66,7 @@ function changeToViewMode(data = null) {
 
 function showNote(id) {
   let elem = id;
-  $.get(`../../notes/page/${id}`, (data, status) => {
+  $.get(`../../notes/page/${elem}`, (data, status) => {
     if (status === "success") {
       let content = data["content"];
       if (editMode) {
@@ -56,18 +80,11 @@ function showNote(id) {
 }
 
 $("#add_btn_form").click(() => {
-  let id = parseInt($(pagesDisplayId).children().last().attr("id")) + 1;
+  let id;
   let title = $("#nameForm").val();
   $("#nameForm").val("");
   if (title === "") {
   } else {
-    let elem = `<li
-    class="${treeViewClass}"
-    id="${id}"
-    onclick="showNote(this.id)"
-  >
-  <p>${title}</p>
-        </li>`;
     let csrf_token = $("input[name=csrfmiddlewaretoken]").val();
     let note_id = $("input[name=noteId").val();
     $.post(
@@ -79,6 +96,13 @@ $("#add_btn_form").click(() => {
       },
       (data, status) => {
         if (status === "success") {
+          let elem = `<li
+                      class="${treeViewClass}"
+                      id="${parseInt(data.trim())}"
+                      onclick="showNote(this.id)"
+                      >
+                      <p>${title}</p>
+                      </li>`;
           $(pagesDisplayId).append(elem);
           $(".treeview-animated").mdbTreeview();
           $("#modalPageName").modal("hide");

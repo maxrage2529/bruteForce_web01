@@ -82,11 +82,12 @@ Application {%endif%} {%endblock%} {%block content%}
         <ul class="treeview-animated-list mb-3" id="pages">
           {%for page in object.notepages_set.all %}
           <li
-            class="treeview-animated-element"
+            class="treeview-animated-element text-center"
             id="{{page.pk}}"
             onclick="showNote(this.id)"
           >
             <p>{{page.title}}</p>
+            <!--button class="btn btn-danger btn-sm"><i class="fa fa-trash" aria-hidden="true"></i></button-->
           </li>
           {%endfor%}
         </ul>
@@ -103,6 +104,9 @@ Application {%endif%} {%endblock%} {%block content%}
       </textarea>
       <div class="viewContent" height="100%" width="100%"></div>
     </div>
+  </div>
+  <div>
+    <button class="btn btn-success" id="saveBtn">Save</button>
   </div>
 </div>
 <script src="{%static 'main/notes_page.js'%}"></script>
