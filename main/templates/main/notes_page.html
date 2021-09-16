@@ -63,6 +63,7 @@ Application {%endif%} {%endblock%} {%block content%}
       <input
         type="checkbox"
         checked
+        id="viewEditToggle"
         data-toggle="toggle"
         data-on="View"
         data-off="Edit"
@@ -93,13 +94,14 @@ Application {%endif%} {%endblock%} {%block content%}
     </div>
     <div class="col-9" style="min-height: 100%; height: 100%">
       <textarea
-        class="notePage"
+        class="editContent"
         id="full-featured-non-premium"
         height="100%"
         width="100%"
         style="border: 1px solid black"
       >
       </textarea>
+      <div class="viewContent" height="100%" width="100%"></div>
     </div>
   </div>
 </div>

@@ -1,16 +1,60 @@
 $(document).ready(function () {
   $(".treeview-animated").mdbTreeview();
-  var useDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  $("#full-featured-non-premium").toggle();
-
   startTiny();
+  $("#full-featured-non-premium").hide();
+  tinymce.activeEditor.hide()
 });
 
+let useDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
 let pagesDisplayId = "#pages";
+let treeViewClass = ".treeview-animated-element";
+let contentDiv = ".viewContent";
+let textAreaId = "full-featured-non-premium";
+let editToggleId = "#viewEditToggle";
+let editMode = false;
+
+$(editToggleId).change(function () {
+  editMode = !$(this).prop("checked");
+  if(editMode) {
+    changeToEditMode()
+  }
+  else {
+    changeToViewMode()
+  }
+});
+
+function changeToEditMode(data = null) {
+  let content = data === null ? $(contentDiv).html() : data;
+  tinymce.activeEditor.show();
+  //$("#" + textAreaId).show();
+  tinymce.get(textAreaId).setContent(content);
+  $(contentDiv).hide();
+}
+
+function changeToViewMode(data = null) {
+  let content = data === null ? tinymce.activeEditor.getContent() : data;
+  $(contentDiv).html(content);
+  $(contentDiv).show();
+  tinymce.activeEditor.hide();
+  $("#" + textAreaId).hide();
+}
 
 function showNote(id) {
   let elem = id;
+  $.get(`../../notes/page/${id}`, (data, status) => {
+    if (status === "success") {
+      let content = data["content"];
+      if (editMode) {
+        changeToEditMode(content);
+        //$(textAreaClass).attr("value", content);
+      } else {
+        changeToViewMode(content);
+      }
+    }
+  });
 }
+
 $("#add_btn_form").click(() => {
   let id = parseInt($(pagesDisplayId).children().last().attr("id")) + 1;
   let title = $("#nameForm").val();
@@ -18,7 +62,7 @@ $("#add_btn_form").click(() => {
   if (title === "") {
   } else {
     let elem = `<li
-    class="treeview-animated-element"
+    class="${treeViewClass}"
     id="${id}"
     onclick="showNote(this.id)"
   >
@@ -38,9 +82,8 @@ $("#add_btn_form").click(() => {
           $(pagesDisplayId).append(elem);
           $(".treeview-animated").mdbTreeview();
           $("#modalPageName").modal("hide");
-        }
-        else {
-         alert("An error occured")
+        } else {
+          alert("An error occured");
           $("#modalPageName").modal("hide");
         }
       }

@@ -1,6 +1,7 @@
 from django.shortcuts import render,HttpResponse,get_object_or_404
 from django.views.generic import ListView,DetailView,CreateView,DeleteView
 from .models import Note,NotePages
+from django.http import JsonResponse
 
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -19,10 +20,10 @@ class DisplayNotes(DetailView) :
     model = Note
     template_name = "main/notes_page.html"
 
-@method_decorator(xframe_options_exempt, name='dispatch')
+'''@method_decorator(xframe_options_exempt, name='dispatch')
 class DisplayNotesPages(DetailView) :
     model = NotePages
-    template_name = "main/notes_page_detail.html"
+    template_name = "main/notes_page_detail.html"'''
 
 def DisplayNotesPages(request,pk) :
     Page = get_object_or_404(NotePages,pk=pk)
@@ -32,7 +33,7 @@ def DisplayNotesPages(request,pk) :
         "title" : title,
         "content" : content
     }
-    
+    return JsonResponse(context)
     
    
 @require_http_methods(["POST"])    
