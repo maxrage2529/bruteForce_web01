@@ -1,0 +1,7 @@
+{%extends "base.html"%} {%load static%} {% load socialaccount %} {%block title%}
+{%if user.is_authenticated %} {{user.username}}'s Notes {%else%} Notes
+Application {%endif%} {%endblock%} {%block content%}
+<div class="container vh-100" style="min-height: 100%; height: 100%">
+  
+</div>
+{%endblock%}

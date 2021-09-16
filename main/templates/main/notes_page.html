@@ -1,0 +1,107 @@
+{%extends "base.html"%} {%load static%} {% load socialaccount %} {%block title%}
+{%if user.is_authenticated %} {{user.username}}'s Notes {%else%} Notes
+Application {%endif%} {%endblock%} {%block content%}
+<div class="container vh-100" style="min-height: 100%; height: 100%">
+  {%csrf_token%}
+  <input type="hidden" name="noteId" value="{{object.pk}}" />
+  <div
+    class="modal fade"
+    id="modalPageName"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="Page Name"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+          <h4 class="modal-title w-100 font-weight-bold">
+            Write name for your page
+          </h4>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body mx-3">
+          <div class="md-form mb-5">
+            <input
+              type="text"
+              id="nameForm"
+              class="form-control validate"
+              required
+            />
+            <label data-error="wrong" data-success="right" for="nameForm"
+              >Name</label
+            >
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <div id="modalWarningText"></div>
+          <button class="btn btn-default" id="add_btn_form">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <button
+        class="btn btn-success btn-sm"
+        id="add_page"
+        data-toggle="modal"
+        data-target="#modalPageName"
+      >
+        <i class="fas fa-plus"></i>
+        <span>Add Page</span>
+      </button>
+    </div>
+    <div class="col-6 text-right">
+      <input
+        type="checkbox"
+        checked
+        data-toggle="toggle"
+        data-on="View"
+        data-off="Edit"
+        data-onstyle="success"
+        data-offstyle="danger"
+        data-size="sm"
+      />
+    </div>
+  </div>
+
+  <div class="row my-4" style="min-height: 100%; height: 100%">
+    <div class="col-3">
+      <div class="treeview-animated border">
+        <h4 class="pt-3 pl-3">{{object.title}}</h4>
+        <hr />
+        <ul class="treeview-animated-list mb-3" id="pages">
+          {%for page in object.notepages_set.all %}
+          <li
+            class="treeview-animated-element"
+            id="{{page.pk}}"
+            onclick="showNote(this.id)"
+          >
+            <p>{{page.title}}</p>
+          </li>
+          {%endfor%}
+        </ul>
+      </div>
+    </div>
+    <div class="col-9" style="min-height: 100%; height: 100%">
+      <textarea
+        class="notePage"
+        id="full-featured-non-premium"
+        height="100%"
+        width="100%"
+        style="border: 1px solid black"
+      >
+      </textarea>
+    </div>
+  </div>
+</div>
+<script src="{%static 'main/notes_page.js'%}"></script>
+{%endblock%}

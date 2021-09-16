@@ -1,0 +1,28 @@
+{%extends "base.html"%}
+{% load socialaccount %}
+
+{%block title%}
+    {%if user.is_authenticated %}
+        {{user.username}}'s Notes
+    {%else%}    
+        Notes Application
+    {%endif%}
+{%endblock%}
+
+{%block content%}
+    <div class="container">
+        <div class="d-flex">
+            <button class="btn btn-success">
+                <i class="fas fa-plus"></i>
+                <span>Add Note</span>
+            </button>
+        </div>
+        <div>
+            {%for note in object_list%}
+                <div>
+                    <a href="{%url 'display_notes' note.id%}">{{note.title}}</a>
+                </div>  
+            {%endfor%}
+        </div>
+    </div>
+{%endblock%}

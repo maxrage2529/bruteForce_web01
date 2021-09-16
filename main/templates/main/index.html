@@ -1,0 +1,17 @@
+{%extends "base.html"%}
+{% load socialaccount %}
+
+{%block title%}
+    {%if user.is_authenticated %}
+        {{user.username}}'s Notes
+    {%else%}    
+        Notes Application
+    {%endif%}
+{%endblock%}
+
+{%block content%}
+    <div class="container">
+        Hello World
+        </div>
+    </div>
+{%endblock%}
