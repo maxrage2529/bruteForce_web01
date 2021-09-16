@@ -1,30 +1,96 @@
-{%extends "base.html"%}
-{%load static%}
-{% load socialaccount %}
-
-{%block title%}
-    {%if user.is_authenticated %}
-        {{user.username}}'s Notes
-    {%else%}    
-        Notes Application
-    {%endif%}
-{%endblock%}
-
-{%block content%}
-    <div class="container">
-        <div class="d-flex">
-            <button class="btn btn-success">
-                <i class="fas fa-plus"></i>
-                <span>Add Note</span>
-            </button>
+{%extends "base.html"%} {%load static%} {% load socialaccount %} {%block title%}
+{%if user.is_authenticated %} {{user.username}}'s Notes {%else%} Notes
+Application {%endif%} {%endblock%} {%block content%}
+<div class="container">
+  <div
+    class="modal fade"
+    id="modalPageName"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="Page Name"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+          <h4 class="modal-title w-100 font-weight-bold">
+            Give title to your notes
+          </h4>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-        <div>
-            {%for note in object_list%}
-                <div>
-                    <a href="{%url 'display_notes' note.id%}">{{note.title}}</a>
-                </div>  
-            {%endfor%}
+        <div class="modal-body mx-3">
+          <div class="md-form mb-5">
+            <form action="{%url 'create_notes'%}" method="POST">
+              {%csrf_token%}
+              <input
+                type="text"
+                id="nameForm"
+                class="form-control validate"
+                name="title"
+                required
+              />
+              <label data-error="wrong" data-success="right" for="nameForm"
+                >Title</label
+              >
+              <div class="modal-footer d-flex justify-content-center">
+                <div id="modalWarningText"></div>
+                <button class="btn btn-default" type="submit" id="add_btn_form">
+                  Add
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
-    <script src="{%static 'main/dashboard.js'%}"></script>
+  </div>
+  <div class="d-flex">
+    <button
+      class="btn btn-success"
+      id="add_notes"
+      data-toggle="modal"
+      data-target="#modalPageName"
+    >
+      <i class="fas fa-plus"></i>
+      <span>Add Notes</span>
+    </button>
+  </div>
+  <div>
+    <!-- Card deck -->
+    <div class="card-deck">
+      <!-- Card -->
+      {%for note in object_list%}
+      <div class="card mb-4">
+        <!--Card content-->
+        <div class="card-body">
+          <!--Title-->
+          <h4 class="card-title">{{note.title}}</h4>
+          <!--Text-->
+          <p class="card-text">
+            Created : {{note.created_on.date}} by {{note.user.username}}
+          </p>
+          <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+          <a
+            type="button"
+            href="{%url 'display_notes' note.id%}"
+            class="btn btn-light-blue btn-md"
+          >
+            Read more
+          </a>
+        </div>
+      </div>
+      {%endfor%}
+      <!-- Card -->
+    </div>
+    <!-- Card deck -->
+  </div>
+</div>
+<script src="{%static 'main/dashboard.js'%}"></script>
 {%endblock%}
