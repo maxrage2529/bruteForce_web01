@@ -3,6 +3,8 @@ $(document).ready(function () {
   startTiny();
   $("#full-featured-non-premium").hide();
   tinymce.activeEditor.hide();
+
+  
 });
 
 let useDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -18,9 +20,16 @@ let editMode = false;
 let saveBtnId = "saveBtn";
 
 $("#" + saveBtnId).click(() => {
+  save();
+});
+
+function save() {
   let data = tinymce.get(textAreaId).getContent();
   let csrf_token = $("input[name=csrfmiddlewaretoken]").val();
   let id = $(activeTreeViewClass).attr("id");
+  if (id === undefined) {
+    return;
+  }
   $.post(
     `../../notes/page/update/${id}`,
     {
@@ -31,7 +40,7 @@ $("#" + saveBtnId).click(() => {
       console.log(success);
     }
   );
-});
+}
 
 $(editToggleId).change(function () {
   editMode = !$(this).prop("checked");
@@ -47,7 +56,7 @@ function changeToEditMode(data = null) {
   tinymce.activeEditor.show();
   //$("#" + textAreaId).show();
   if (content === "" || content === null) {
-    content = ""
+    content = "";
   }
   tinymce.get(textAreaId).setContent(content);
   $(contentDiv).hide();
@@ -56,8 +65,9 @@ function changeToEditMode(data = null) {
 function changeToViewMode(data = null) {
   let content = data === null ? tinymce.activeEditor.getContent() : data;
   if (content === "" || content === null) {
-    content = ""
+    content = "";
   }
+  tinymce.get(textAreaId).setContent(content);
   $(contentDiv).html(content);
   $(contentDiv).show();
   tinymce.activeEditor.hide();
@@ -69,6 +79,9 @@ function showNote(id) {
   $.get(`../../notes/page/${elem}`, (data, status) => {
     if (status === "success") {
       let content = data["content"];
+      if (content === null) {
+        content = "";
+      }
       if (editMode) {
         changeToEditMode(content);
         //$(textAreaClass).attr("value", content);
@@ -78,6 +91,34 @@ function showNote(id) {
     }
   });
 }
+
+$("button[id*='edit']").click(function () {
+  let id = this.id;
+  $("input[name=selectedPageId]").attr("value", id.replace("edit", ""));
+});
+
+$("#update_btn_form").click(() => {
+  let title = $("#nameFormUpdate").val();
+  let id = $("input[name=selectedPageId]").val();
+  let csrf_token = $("input[name=csrfmiddlewaretoken]").val();
+
+  $.post(
+    `../../notes/page/update/${id}`,
+    {
+      title: title,
+      csrfmiddlewaretoken: csrf_token,
+    },
+    (data, success) => {
+      if (success) {
+        $(`li[id=${id}] > p`).text(title);
+        $("#modalPageNameEdit").modal("hide");
+      } else {
+        alert("An error occured");
+        $("#modalPageNameEdit").modal("hide");
+      }
+    }
+  );
+});
 
 $("#add_btn_form").click(() => {
   let id;
@@ -102,7 +143,24 @@ $("#add_btn_form").click(() => {
                       onclick="showNote(this.id)"
                       >
                       <p>${title}</p>
-                      </li>`;
+                      </li>
+                      <button
+                      class="btn btn-danger btn-sm"
+                      id="delete${data.trim()}"
+                      onclick="deletePage(this.id)"
+                      >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                      <button
+                      class="btn btn-danger btn-sm"
+                      id="edit${data.trim()}"
+                      onclick=""
+                      data-toggle="modal"
+                      data-target="#modalPageNameEdit"
+                      >
+                        <i class="fas fa-pencil-alt"></i>
+                      </button>
+                      `;
           $(pagesDisplayId).append(elem);
           $(".treeview-animated").mdbTreeview();
           $("#modalPageName").modal("hide");
@@ -115,12 +173,58 @@ $("#add_btn_form").click(() => {
   }
 });
 
+$("#notesTypeToggle").change(function() {
+  let val = this.checked
+  let noteId = $("input[name=noteId").val();
+  let csrf_token = $("input[name=csrfmiddlewaretoken]").val();
+  if (val === true) {
+    $.post(`../../notes/update/${noteId}`,{
+      csrfmiddlewaretoken : csrf_token,
+      notes_type : "PU"
+    },(data,success)=> {
+      console.log(success)
+    })
+  }
+  else {
+    $.post(`../../notes/update/${noteId}`,{
+      csrfmiddlewaretoken : csrf_token,
+      notes_type : "PR"
+    },(data,success)=> {
+      console.log(success)
+    })
+  }
+})
+
+function deletePage(id) {
+  id = id.replace("delete", "");
+  if (id !== undefined) {
+    let csrf_token = $("input[name=csrfmiddlewaretoken]").val();
+    $.post(
+      "../../notes/page/delete/",
+      { id: id, csrfmiddlewaretoken: csrf_token },
+      (data, status) => {
+        console.log(status);
+        if (status === "success") {
+          remId = data;
+          $("li").remove(`#${id}`);
+          $("button").remove(`#delete${id}`);
+          $("button").remove(`#edit${id}`);
+          $(".treeview-animated").mdbTreeview();
+          let newID = $("#pages li:first").attr("id")
+          showNote(newID)
+        }
+      }
+    );
+  }
+}
+
 function startTiny() {
   tinymce.init({
     selector: "textarea#full-featured-non-premium",
     plugins:
       "print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons",
     imagetools_cors_hosts: ["picsum.photos"],
+    resize: false,
     toolbar:
       "undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl",
     toolbar_sticky: true,
@@ -198,5 +302,10 @@ function startTiny() {
     content_css: useDarkMode ? "dark" : "default",
     content_style:
       "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+    setup: function (e) {
+      e.on("onStoreDraft", function (event) {
+        save();
+      });
+    },
   });
 }

@@ -1,4 +1,4 @@
-{% load socialaccount %}
+{% load socialaccount %} {% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -55,12 +55,18 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+    <link rel="stylesheet" href="{%static 'base/css/dark-mode.css'%}" />
+    <!--script src="{%static 'base/js/dark-mode-switch.min.js'%}"></script-->
     <title>{%block title%}{%endblock%}</title>
+    <style>
+      {%block styling%}
+      {%endblock%}
+    </style>
   </head>
   <body>
     <!--Navbar -->
     <nav class="mb-1 navbar navbar-expand-lg navbar-dark info-color">
-      <a class="navbar-brand" href="#">Navbar</a>
+      <a class="navbar-brand" href="{%url 'home'%}">NotesLord</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -74,6 +80,18 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
         <ul class="navbar-nav ml-auto">
+          <!--li class="nav-item">
+            <div class="custom-control custom-switch">
+              <input
+                type="checkbox"
+                class="custom-control-input"
+                id="darkSwitch"
+              />
+              <label class="custom-control-label" for="darkSwitch"
+                >Dark Mode</label
+              >
+            </div>
+          </li-->
           {%if user.is_authenticated%}
           <li class="nav-item dropdown">
             <a
@@ -95,16 +113,11 @@
           </li>
           {%else%}
           <li class="nav-item">
-            <a class="nav-link" href="{% provider_login_url 'google' %}"
-              >Login</a
-            >
-          </li>
-          <li class="nav-item">
             <a
               class="nav-link btn btn-sm align-middle btn-outline-white"
-              href="#"
-              >Sign Up</a
-            >
+              href="{% provider_login_url 'google' %}"
+              >Login<i class="fab fa-google"></i
+            ></a>
           </li>
           {%endif%}
         </ul>

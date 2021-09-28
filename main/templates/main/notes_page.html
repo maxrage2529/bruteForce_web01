@@ -2,8 +2,19 @@
 {%if user.is_authenticated %} {{user.username}}'s Notes {%else%} Notes
 Application {%endif%} {%endblock%} {%block content%}
 <div class="container vh-100" style="min-height: 100%; height: 100%">
-  {%csrf_token%}
+  {%if object.notes_type == "PR" and object.user != request.user and request.user not in object.contributors.all %}
+  <div class="text-center">
+    <p>Creator of these notes has set access to private</p>
+    <p>
+      You have to tell them to make access public or add you contributors list
+    </p>
+    <a href="{%url 'home'%}" class="btn btn-primary">Home</a>
+  </div>
+
+  {%else%} {%csrf_token%}
   <input type="hidden" name="noteId" value="{{object.pk}}" />
+  <input type="hidden" name="selectedPageId" />
+  {%if object.user == request.user or request.user in object.contributors.all %}
   <div
     class="modal fade"
     id="modalPageName"
@@ -47,8 +58,76 @@ Application {%endif%} {%endblock%} {%block content%}
       </div>
     </div>
   </div>
+  <div
+    class="modal fade"
+    id="modalPageNameEdit"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="Page Name Edit"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+          <h4 class="modal-title w-100 font-weight-bold">
+            Edit name for your page
+          </h4>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body mx-3">
+          <div class="md-form mb-5">
+            <input
+              type="text"
+              id="nameFormUpdate"
+              class="form-control validate"
+              required
+            />
+            <label data-error="wrong" data-success="right" for="nameFormUpdate"
+              >Name</label
+            >
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <div id="modalWarningText"></div>
+          <button class="btn btn-default" id="update_btn_form">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {%endif%}
   <div class="row">
     <div class="col-6">
+      <div>
+        <a href="{%url 'dashboard'%}" class="btn btn-sm btn-primary">Back</a>
+      </div>
+    </div>
+    <div class="col-6 text-right">
+      {%if object.user == request.user or request.user in object.contributors.all %} 
+      <input 
+      type="checkbox" 
+      id="notesTypeToggle"
+      data-toggle="toggle" 
+      data-on="Public" data-off="Private"
+      data-onstyle="success" 
+      data-offstyle="secondary" 
+      data-size="sm" 
+      {%if object.notes_type == "PU"%} 
+      checked 
+      {%endif%} /> 
+      {%endif%}
+    </div>
+  </div>
+
+  {%if object.user == request.user or request.user in object.contributors.all %}
+  <div class="row">
+    <div class="col-4">
       <button
         class="btn btn-success btn-sm"
         id="add_page"
@@ -59,7 +138,12 @@ Application {%endif%} {%endblock%} {%block content%}
         <span>Add Page</span>
       </button>
     </div>
-    <div class="col-6 text-right">
+    <div class="col-4 text-center">
+      <div>
+        <button class="btn btn-success btn-sm" id="saveBtn">Save</button>
+      </div>
+    </div>
+    <div class="col-4 text-right">
       <input
         type="checkbox"
         checked
@@ -73,41 +157,68 @@ Application {%endif%} {%endblock%} {%block content%}
       />
     </div>
   </div>
-
+  {%endif%}
   <div class="row my-4" style="min-height: 100%; height: 100%">
-    <div class="col-3">
-      <div class="treeview-animated border">
+    <div class="col-3" style="margin: 0; padding: 0">
+      <div class="treeview-animated border sticky-top">
         <h4 class="pt-3 pl-3">{{object.title}}</h4>
         <hr />
         <ul class="treeview-animated-list mb-3" id="pages">
           {%for page in object.notepages_set.all %}
           <li
-            class="treeview-animated-element text-center"
+            class="treeview-animated-element"
             id="{{page.pk}}"
             onclick="showNote(this.id)"
           >
             <p>{{page.title}}</p>
             <!--button class="btn btn-danger btn-sm"><i class="fa fa-trash" aria-hidden="true"></i></button-->
           </li>
+          {%if object.user == request.user or request.user in object.contributors.all %}
+          <button
+            class="btn btn-danger btn-sm"
+            id="delete{{page.pk}}"
+            onclick="deletePage(this.id)"
+          >
+            <i class="fa fa-trash" aria-hidden="true"></i>
+          </button>
+          <button
+            class="btn btn-danger btn-sm"
+            id="edit{{page.pk}}"
+            onclick=""
+            data-toggle="modal"
+            data-target="#modalPageNameEdit"
+          >
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+          {%endif%} 
           {%endfor%}
         </ul>
       </div>
     </div>
-    <div class="col-9" style="min-height: 100%; height: 100%">
+    <div
+      class="col-9"
+      style="min-height: 100%; height: 100%; padding: 0; margin: 0"
+    >
       <textarea
         class="editContent"
         id="full-featured-non-premium"
         height="100%"
         width="100%"
-        style="border: 1px solid black"
+        style="border: 1px solid black; resize: none"
       >
       </textarea>
-      <div class="viewContent" height="100%" width="100%"></div>
+      <div
+        class="viewContent"
+        style="
+          margin: 0 0 0 1em;
+          overflow: auto;
+          height: 100%;
+          min-height: 100%;
+        "
+      ></div>
     </div>
   </div>
-  <div>
-    <button class="btn btn-success" id="saveBtn">Save</button>
-  </div>
+  {%endif%}
 </div>
 <script src="{%static 'main/notes_page.js'%}"></script>
 {%endblock%}

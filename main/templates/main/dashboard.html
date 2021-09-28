@@ -63,11 +63,16 @@ Application {%endif%} {%endblock%} {%block content%}
     </button>
   </div>
   <div>
+    <span>Sort by : </span>
+    <button onclick="sortAccordingToTitle()" class="btn btn-sm btn-primary">Title</button>
+    <button onclick="sortAccordingToRelevance()" class="btn btn-sm btn-primary">Relevance</button>
+  </div>
+  <div>
     <!-- Card deck -->
-    <div class="row row-cols-3 row-cols-md-3">
+    <div class="row row-cols-3 row-cols-md-3" id="notes_container">
       <!-- Card -->
       {%for note in object_list%}
-      <div class="card mb-4">
+      <div class="card mb-4" class="{{note.id}}">
         <!--Card content-->
         <div class="card-body">
           <!--Title-->
@@ -84,6 +89,13 @@ Application {%endif%} {%endblock%} {%block content%}
           >
             Read more
           </a>
+          <a
+            type="button"
+            href="{%url 'delete_notes' note.id%}"
+            class="btn btn-light-blue btn-md"
+          >
+            Delete
+          </a>
         </div>
       </div>
       {%endfor%}
@@ -92,5 +104,64 @@ Application {%endif%} {%endblock%} {%block content%}
     <!-- Card deck -->
   </div>
 </div>
+<script>
+  let titleSortHtml = `{%for note in object_list|dictsort:"title"%}
+  <div class="card mb-4" class="{{note.id}}">
+    <!--Card content-->
+    <div class="card-body">
+      <!--Title-->
+      <h4 class="card-title">{{note.title}}</h4>
+      <!--Text-->
+      <p class="card-text">
+        Created : {{note.created_on.date}} by {{note.user.username}}
+      </p>
+      <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+      <a
+        type="button"
+        href="{%url 'display_notes' note.id%}"
+        class="btn btn-light-blue btn-md"
+      >
+        Read more
+      </a>
+      <a
+        type="button"
+        href="{%url 'delete_notes' note.id%}"
+        class="btn btn-light-blue btn-md"
+      >
+        Delete
+      </a>
+    </div>
+  </div>
+  {%endfor%}`
+
+  let relevanceSortHtml = `{%for note in object_list%}
+  <div class="card mb-4" class="{{note.id}}">
+    <!--Card content-->
+    <div class="card-body">
+      <!--Title-->
+      <h4 class="card-title">{{note.title}}</h4>
+      <!--Text-->
+      <p class="card-text">
+        Created : {{note.created_on.date}} by {{note.user.username}}
+      </p>
+      <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+      <a
+        type="button"
+        href="{%url 'display_notes' note.id%}"
+        class="btn btn-light-blue btn-md"
+      >
+        Read more
+      </a>
+      <a
+        type="button"
+        href="{%url 'delete_notes' note.id%}"
+        class="btn btn-light-blue btn-md"
+      >
+        Delete
+      </a>
+    </div>
+  </div>
+  {%endfor%}`
+</script>
 <script src="{%static 'main/dashboard.js'%}"></script>
 {%endblock%}

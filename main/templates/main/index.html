@@ -1,5 +1,6 @@
 {%extends "base.html"%}
 {% load socialaccount %}
+{% load static %}
 
 {%block title%}
     {%if user.is_authenticated %}
@@ -9,9 +10,22 @@
     {%endif%}
 {%endblock%}
 
+{%block styling%}
+body, html {
+    height: 100%;
+  }
+    .bg {
+        background-image: url({%static 'main/images/desktop.jpg'%});
+        height: 100%; 
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        opacity : 0.9
+    }
+{%endblock%}
+
 {%block content%}
-    <div class="container">
-        Hello World
-        </div>
-    </div>
+<div class="bg d-flex align-items-center justify-content-center">
+    <h1>Notes Lord </h1>
+</div>
 {%endblock%}

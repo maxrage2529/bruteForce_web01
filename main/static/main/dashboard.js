@@ -17,3 +17,12 @@
     );
   }
 });*/
+let notes_container = "notes_container"
+
+function sortAccordingToRelevance() {
+  $("#" + notes_container).html(relevanceSortHtml)
+}
+
+function sortAccordingToTitle() {
+  $("#" + notes_container).html(titleSortHtml)
+}

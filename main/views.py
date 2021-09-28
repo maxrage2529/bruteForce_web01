@@ -10,6 +10,10 @@ from django.utils.decorators import method_decorator
 
 # Create your views here.
 
+def MainPage(request) :
+    if request.user.is_authenticated:
+        return redirect(reverse("dashboard"))
+    return render(request,"main/index.html")
 
 class ListNotes(ListView):
     model = Note
@@ -33,6 +37,22 @@ def CreateNotes(request):
         Notes.save()
         return redirect(reverse("display_notes",kwargs={"pk":Notes.id}))
 
+def DeleteNotes(request, id):
+    Notes = get_object_or_404(Note, pk=id)
+    id = Notes.pk
+    Notes.delete()
+    return redirect(reverse("dashboard"))
+
+@require_http_methods(["POST"])
+def UpdateNotes(request,id) :
+    if request.method == "POST" :
+        title = request.POST.get("title",None)
+        notes_type = request.POST.get("notes_type",None)
+        Notes = Note.objects.get(id=id)
+        Notes.title = title if title else Notes.title
+        Notes.notes_type = notes_type if notes_type else Notes.notes_type
+        Notes.save()
+        return HttpResponse("success")
 
 '''@method_decorator(xframe_options_exempt, name='dispatch')
 class DisplayNotesPages(DetailView) :
@@ -61,16 +81,19 @@ def CreateNotesPage(request):
 @require_http_methods(["POST"])
 def UpdateNotesPage(request, id):
     if request.method == "POST":
-        # title = request.POST.get("title")
-        content = request.POST.get("content", "")
+        title = request.POST.get("title",None)
+        content = request.POST.get("content", None)
         Page = get_object_or_404(NotePages, pk=id)
-        Page.content = content
+        Page.title = title if title else Page.title
+        Page.content = content if content else Page.content
         Page.save()
         return HttpResponse(content="success")
 
-
-def DeleteNotesPage(request, id):
-    Page = get_object_or_404(NotePages, pk=id)
-    id = Page.pk
-    Page.delete()
-    return HttpResponse(content=id)
+@require_http_methods(["POST"])
+def DeleteNotesPage(request):
+    if (request.method == "POST") :
+        id = request.POST.get("id")
+        Page = get_object_or_404(NotePages, pk=id)
+        id = Page.pk
+        Page.delete()
+        return HttpResponse(content=id)
