@@ -162,6 +162,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 SITE_ID = 3
 
+LOGIN_URL = "/account/accounts/google/login"
 LOGIN_REDIRECT_URL = "/dashboard"
 LOGOUT_REDIRECT_URL = "/"
 

@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.urls import reverse
 
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import  login_required
+from django.contrib.auth.mixins import  LoginRequiredMixin
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.decorators import method_decorator
 
@@ -15,7 +17,7 @@ def MainPage(request) :
         return redirect(reverse("dashboard"))
     return render(request,"main/index.html")
 
-class ListNotes(ListView):
+class ListNotes(LoginRequiredMixin,ListView):
     model = Note
     template_name = "main/dashboard.html"
 
@@ -29,6 +31,7 @@ class DisplayNotes(DetailView):
 
 
 @require_http_methods(["POST"])
+@login_required
 def CreateNotes(request):
     if request.method == "POST":
         title = request.POST.get("title", None)
@@ -37,6 +40,7 @@ def CreateNotes(request):
         Notes.save()
         return redirect(reverse("display_notes",kwargs={"pk":Notes.id}))
 
+@login_required
 def DeleteNotes(request, id):
     Notes = get_object_or_404(Note, pk=id)
     id = Notes.pk
@@ -44,6 +48,7 @@ def DeleteNotes(request, id):
     return redirect(reverse("dashboard"))
 
 @require_http_methods(["POST"])
+@login_required
 def UpdateNotes(request,id) :
     if request.method == "POST" :
         title = request.POST.get("title",None)
@@ -69,6 +74,7 @@ def DisplayNotesPages(request, pk):
 
 
 @require_http_methods(["POST"])
+@login_required
 def CreateNotesPage(request):
     if request.method == "POST":
         title = request.POST.get("title", None)
@@ -79,6 +85,7 @@ def CreateNotesPage(request):
 
 
 @require_http_methods(["POST"])
+@login_required
 def UpdateNotesPage(request, id):
     if request.method == "POST":
         title = request.POST.get("title",None)
@@ -88,8 +95,10 @@ def UpdateNotesPage(request, id):
         Page.content = content if content else Page.content
         Page.save()
         return HttpResponse(content="success")
-
+    
+    
 @require_http_methods(["POST"])
+@login_required
 def DeleteNotesPage(request):
     if (request.method == "POST") :
         id = request.POST.get("id")
