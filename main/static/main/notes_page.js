@@ -4,7 +4,7 @@ $(document).ready(function () {
   $("#full-featured-non-premium").hide();
   tinymce.activeEditor.hide();
 
-  
+  $("#" + saveBtnId).hide()
 });
 
 let useDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -53,6 +53,7 @@ $(editToggleId).change(function () {
 
 function changeToEditMode(data = null) {
   let content = data === null ? $(contentDiv).html() : data;
+  $("#" + saveBtnId).show()
   tinymce.activeEditor.show();
   //$("#" + textAreaId).show();
   if (content === "" || content === null) {
@@ -63,6 +64,7 @@ function changeToEditMode(data = null) {
 }
 
 function changeToViewMode(data = null) {
+  $("#" + saveBtnId).hide()
   let content = data === null ? tinymce.activeEditor.getContent() : data;
   if (content === "" || content === null) {
     content = "";
@@ -211,7 +213,12 @@ function deletePage(id) {
           $("button").remove(`#edit${id}`);
           $(".treeview-animated").mdbTreeview();
           let newID = $("#pages li:first").attr("id")
-          showNote(newID)
+          if (newID!==undefined) {
+            showNote(newID)
+          }
+          else {
+            changeToViewMode("")
+          }          
         }
       }
     );
