@@ -94,7 +94,7 @@ function showNote(id) {
   });
 }
 
-$("button[id*='edit']").click(function () {
+$("button[id^=edit]").click(function () {
   let id = this.id;
   $("input[name=selectedPageId]").attr("value", id.replace("edit", ""));
 });
