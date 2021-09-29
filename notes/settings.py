@@ -175,7 +175,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-SITE_ID = 2
+SITE_ID = 4
 
 LOGIN_URL = "/account/accounts/google/login"
 LOGIN_REDIRECT_URL = "/dashboard"
