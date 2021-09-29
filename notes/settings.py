@@ -21,6 +21,11 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "d2scnr8g8llm5l",
+        "USER": "mkjyzvtfrwwuaa",
+        "PASSWORD": "e827b06e139d6d2e8e5d420db6f05eb7525e4d4806e3298400159d4e61a6ae29",
+        "HOST": "ec2-18-209-143-227.compute-1.amazonaws.com",
+        "PORT": "5432",
     }
 }
 
